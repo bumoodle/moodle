@@ -109,8 +109,14 @@ echo 'mod/attforblock' >> .git/info/exclude
 #
 # Quiz Reports
 #
+
+#Paper Copy (paper quizzes)
 git clone git://github.com/bumoodle/moodle-quiz_papercopy.git mod/quiz/report/papercopy
 echo '/mod/quiz/report/papercopy' >> .git/info/exclude
+
+#Copy Attempt (manual synchronization)
+git clone git@github.com:bumoodle/moodle-quiz_copyattempt.git mod/quiz/report/copyattempt
+echo '/mod/quiz/report/copyattempt' >> .git/info/exclude
 
 #
 # Blocks
@@ -149,3 +155,7 @@ echo '/local/quizsync' >> .git/info/exclude
 #jQuery
 git clone git://github.com/bumoodle/moodle-local_jquery.git local/jquery
 echo '/local/jquery' >> .git/info/exclude
+
+#Error Logger Hack
+git clone git://github.com/bumoodle/moodle-local_errorlogger.git local/errorlogger
+echo '/local/errorlogger' >> .git/info/exclude

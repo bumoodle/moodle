@@ -2413,6 +2413,19 @@ function validate_' . $this->_formName . '(frm) {
             $this->_dependencies[$dependentOn][$condition][$value] = array();
         }
         $this->_dependencies[$dependentOn][$condition][$value][] = $elementName;
+
+        // Add a class to the dependency
+        if (array_key_exists($dependentOn, $this->_elementIndex)) {
+            $element = $this->_elements[$this->_elementIndex[$dependentOn]];
+            if (isset($element->_attributes['class'])) {
+                $classes = explode(' ', $element->_attributes['class']);
+            } else {
+                $classes = array();
+            }
+            $classes[] = 'hasDependency';
+            $classes = array_unique($classes);
+            $element->_attributes['class'] = implode(' ', $classes);
+        }
     }
 
     /**

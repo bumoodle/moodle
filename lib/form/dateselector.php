@@ -123,7 +123,13 @@ class MoodleQuickForm_date_selector extends MoodleQuickForm_group
             array('title' => get_string('calendar', 'calendar'), 'class' => 'visibleifjs'));
         // If optional we add a checkbox which the user can use to turn if on
         if($this->_options['optional']) {
-            $this->_elements[] = @MoodleQuickForm::createElement('checkbox', 'enabled', null, get_string('enable'), $this->getAttributes(), true);
+            $attributes = $this->getAttributes();
+            if (isset($attributes['class'])) {
+                $attributes['class'] .= ' hasDependency';
+            } else {
+                $attributes['class'] = 'hasDependency';
+            }
+            $this->_elements[] = @MoodleQuickForm::createElement('checkbox', 'enabled', null, get_string('enable'), $attributes, true);
         }
         foreach ($this->_elements as $element){
             if (method_exists($element, 'setHiddenLabel')){

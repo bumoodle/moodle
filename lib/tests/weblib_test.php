@@ -179,8 +179,19 @@ class web_testcase extends advanced_testcase {
     }
 
     function test_out_as_local_url() {
+        global $CFG;
         $url1 = new moodle_url('/lib/tests/weblib_test.php');
         $this->assertEquals('/lib/tests/weblib_test.php', $url1->out_as_local_url());
+
+        // Test https url
+        $originalloginhttps = $CFG->loginhttps;
+        $originalhttpswwwroot = $CFG->httpswwwroot;
+        $CFG->loginhttps = 1;
+        $CFG->httpswwwroot = 'https://www.example.com';
+        $url2 = new moodle_url('https://www.example.com/login/profile.php');
+        $this->assertEquals('/login/profile.php', $url2->out_as_local_url());
+        $CFG->loginhttps = $originalloginhttps;
+        $CFG->httpswwwroot = $originalhttpswwwroot;
     }
 
     /**
@@ -190,6 +201,28 @@ class web_testcase extends advanced_testcase {
     function test_out_as_local_url_error() {
         $url2 = new moodle_url('http://www.google.com/lib/tests/weblib_test.php');
         $url2->out_as_local_url();
+    }
+
+    /**
+     * If loginhttps is not set, try converting httpswwwroot and it should throw exception
+     *
+     * @expectedException coding_exception
+     * @return void
+     */
+    public function test_https_out_as_local_url_error() {
+        $url3 = new moodle_url('https://www.example.com/login/profile.php');
+        $url3->out_as_local_url();
+    }
+
+    /**
+     * Try get local url from external https url and you should get error
+     *
+     * @expectedException coding_exception
+     * @return void
+     */
+    public function test_https_external_out_as_local_url_error() {
+        $url4 = new moodle_url('https://www.google.com/lib/tests/weblib_test.php');
+        $url4->out_as_local_url();
     }
 
     public function test_clean_text() {

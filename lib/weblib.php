@@ -748,11 +748,13 @@ class moodle_url {
 
         $url = $this->out($escaped, $overrideparams);
 
-        if (strpos($url, $CFG->wwwroot) !== 0) {
+        if (strpos($url, $CFG->wwwroot) === 0) {
+            return str_replace($CFG->wwwroot, '', $url);
+        } else if (!empty($CFG->loginhttps) && strpos($url, $CFG->httpswwwroot) === 0) {
+            return str_replace($CFG->httpswwwroot, '', $url);
+        } else {
             throw new coding_exception('out_as_local_url called on a non-local URL');
         }
-
-        return str_replace($CFG->wwwroot, '', $url);
     }
 
     /**

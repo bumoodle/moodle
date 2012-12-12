@@ -1484,15 +1484,16 @@ function print_section($course, $section, $mods, $modnamesused, $absolute=false,
             $modcontext = context_module::instance($mod->id);
             $canviewhidden = has_capability('moodle/course:viewhiddenactivities', $modcontext);
             $accessiblebutdim = false;
+            $conditionalhidden = false;
             if ($canviewhidden) {
                 $accessiblebutdim = !$mod->visible;
                 if (!empty($CFG->enableavailability)) {
-                    $accessiblebutdim = $accessiblebutdim ||
-                        $mod->availablefrom > time() ||
+                    $conditionalhidden = $mod->availablefrom > time() ||
                         ($mod->availableuntil && $mod->availableuntil < time()) ||
                         count($mod->conditionsgrade) > 0 ||
                         count($mod->conditionscompletion) > 0;
                 }
+                $accessiblebutdim = $conditionalhidden || $accessiblebutdim;
             }
 
             $liclasses = array();
@@ -1548,8 +1549,12 @@ function print_section($course, $section, $mods, $modnamesused, $absolute=false,
                 $linkclasses = '';
                 $textclasses = '';
                 if ($accessiblebutdim) {
-                    $linkclasses .= ' dimmed conditionalhidden';
-                    $textclasses .= ' dimmed_text conditionalhidden';
+                    $linkclasses .= ' dimmed';
+                    $textclasses .= ' dimmed_text';
+                    if ($conditionalhidden) {
+                        $linkclasses .= ' conditionalhidden';
+                        $textclasses .= ' conditionalhidden';
+                    }
                     $accesstext = '<span class="accesshide">'.
                         get_string('hiddenfromstudents').': </span>';
                 } else {
@@ -1876,8 +1881,9 @@ function print_section_add_menus($course, $section, $modnames, $vertical=false, 
             $output = html_writer::tag('div', $output, array('class' => 'hiddenifjs addresourcedropdown'));
             $modchooser = html_writer::tag('div', $modchooser, array('class' => 'visibleifjs addresourcemodchooser'));
         } else {
-            $output = html_writer::tag('div', $output, array('class' => 'visibleifjs addresourcedropdown'));
-            $modchooser = html_writer::tag('div', $modchooser, array('class' => 'hiddenifjs addresourcemodchooser'));
+            // If the module chooser is disabled, we need to ensure that the dropdowns are shown even if javascript is disabled
+            $output = html_writer::tag('div', $output, array('class' => 'show addresourcedropdown'));
+            $modchooser = html_writer::tag('div', $modchooser, array('class' => 'hide addresourcemodchooser'));
         }
         $output = $modchooser . $output;
     }
@@ -1915,7 +1921,7 @@ function get_module_metadata($course, $modnames, $sectionreturn = null) {
         if (!course_allowed_module($course, $modname)) {
             continue;
         }
-        if (isset($modlist[$modname])) {
+        if (isset($modlist[$course->id][$modname])) {
             // This module is already cached
             $return[$modname] = $modlist[$course->id][$modname];
             continue;

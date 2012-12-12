@@ -2085,6 +2085,37 @@ function readstring_accel($string, $mimetype, $accelerate) {
         }
     }
 
+    //Determine if the server accepts gzip
+    $server_accepts_gzip = strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false;
+    $server_accepts_deflate = strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'deflate') !== false;
+
+    // If PHP's internal gzip output compression is on, we won't be able to correctly
+    // determine the value of the content-length header. Instead, we'll turn it off, and perform
+    // the same gzip encoding ourself.
+    if(ini_get('zlib.output_compression') && ($server_accepts_gzip || $server_accepts_deflate)) {
+
+        // Turn off PHP's built-in zlib compression...
+        ini_set('zlib.output_compression','Off');
+
+        // And compress the data ourselves. This allow us to correctly set the 
+        // content-length header.
+
+        // If the server accepts gzip, prefer it.
+        if($server_accepts_gzip) {
+            $string = gzencode($string, 6);
+
+            // Let the recieving browser know that the data will be gzip-compressed.
+            @header('Content-Encoding: gzip');
+
+        // Otherwise, fall back to deflate.
+        } else {
+            $string = gzdeflate($string, 6);
+
+            // Let the recieving browser know that the data will be deflate-compressed.
+            @header('Content-Encoding: deflate');
+        }
+    }
+
     header('Content-Length: '.strlen($string));
     echo $string;
 }

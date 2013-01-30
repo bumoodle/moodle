@@ -415,6 +415,12 @@ function resource_print_filenotfound($resource, $cm, $course) {
 function resource_get_final_display_type($resource) {
     global $CFG, $PAGE;
 
+    //Determine if embedding should be disallowed, based on the "don't embed on mobile devices" seteting.
+    $device_type = get_device_type();
+    if(get_config('resource', 'dontembedmobile') && ($device_type == 'mobile' || $device_type == 'tablet')) {
+        return RESOURCELIB_DISPLAY_DOWNLOAD;
+    }
+
     if ($resource->display != RESOURCELIB_DISPLAY_AUTO) {
         return $resource->display;
     }
@@ -428,7 +434,9 @@ function resource_get_final_display_type($resource) {
     if (file_mimetype_in_typegroup($mimetype, 'archive')) {
         return RESOURCELIB_DISPLAY_DOWNLOAD;
     }
-    if (file_mimetype_in_typegroup($mimetype, array('web_image', '.htm', 'web_video', 'web_audio'))) {
+
+    //If the file is embeddable, embed it.
+    if (file_mimetype_in_typegroup($mimetype, array('web_image', '.pdf', '.htm', 'web_video', 'web_audio'))) {
         return RESOURCELIB_DISPLAY_EMBED;
     }
 

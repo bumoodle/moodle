@@ -27,6 +27,7 @@
 $string['clicktodownload'] = 'Click {$a} link to download the file.';
 $string['clicktoopen2'] = 'Click {$a} link to view the file.';
 $string['configdisplayoptions'] = 'Select all options that should be available, existing settings are not modified. Hold CTRL key to select multiple fields.';
+$string['configdontembedmobile'] = 'When set, resource files won\'t be embedded in-page on mobile or tablet devices.';
 $string['configframesize'] = 'When a web page or an uploaded file is displayed within a frame, this value is the height (in pixels) of the top frame (which contains the navigation).';
 $string['configparametersettings'] = 'This sets the default value for the Parameter settings pane in the form when adding some new resources. After the first time, this becomes an individual user preference.';
 $string['configpopup'] = 'When adding a new resource which is able to be shown in a popup window, should this option be enabled by default?';
@@ -54,6 +55,7 @@ $string['displayselect_help'] = 'This setting, together with the file type and w
 $string['displayselect_link'] = 'mod/file/mod';
 $string['displayselectexplain'] = 'Choose display type, unfortunately not all types are suitable for all files.';
 $string['dnduploadresource'] = 'Create file resource';
+$string['dontembedmobile'] = 'Disable Mobile Embedding';
 $string['encryptedcode'] = 'Encrypted code';
 $string['filenotfound'] = 'File not found, sorry.';
 $string['filterfiles'] = 'Use filters on file content';

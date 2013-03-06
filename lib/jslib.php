@@ -69,10 +69,51 @@ function js_send_uncached($js, $filename = 'javascript.php') {
     header('Pragma: ');
     header('Accept-Ranges: none');
     header('Content-Type: application/javascript; charset=utf-8');
+   
+    //Compress the JS, if necessary. See the documentation for the function below.
+    $js = compress_if_necessary($js);
+
     header('Content-Length: '.strlen($js));
 
     echo $js;
     die;
+}
+
+function compress_if_necessary($js) {
+    // If PHP's internal gzip output compression is on, we won't be able to correctly
+    // determine the value of the content-length header. Instead, we'll turn it off, and perform
+    // the same gzip encoding ourself.
+    //
+    // Note that many browsers will let this work correctly if we omit the content-length header,
+    // but Chromium/linux waits an irritating length of time before it accepts that the transmission is complete.
+    //
+    // TODO: Abstract this to a function (in moodlelib?) for use in weblib as well.
+    //
+    if(ini_get('zlib.output_compression') && ($server_accepts_gzip || $server_accepts_deflate)) {
+
+        // Turn off PHP's built-in zlib compression...
+        ini_set('zlib.output_compression','Off');
+
+        // And compress the data ourselves. This allow us to correctly set the 
+        // content-length header.
+
+        // If the server accepts gzip, prefer it.
+        if($server_accepts_gzip) {
+            $js = gzencode($js, 6);
+
+            // Let the recieving browser know that the data will be gzip-compressed.
+            @header('Content-Encoding: gzip');
+
+        // Otherwise, fall back to deflate.
+        } else {
+            $js = gzdeflate($js, 6);
+
+            // Let the recieving browser know that the data will be deflate-compressed.
+            @header('Content-Encoding: deflate');
+        }
+    }
+
+    return $js;
 }
 
 /**

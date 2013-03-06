@@ -251,7 +251,7 @@ abstract class qtype_with_combined_feedback_renderer extends qtype_renderer {
         $state = $qa->get_state();
 
         if (!$state->is_finished()) {
-            $response = $qa->get_last_qt_data();
+            $response = $qa->get_feedback_qt_data();
             if (!$qa->get_question()->is_gradable_response($response)) {
                 return '';
             }

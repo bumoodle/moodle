@@ -207,6 +207,25 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
     }
 
     /**
+     * Returns the step which should be used to generate specific and general feedback.
+     * 
+     * @return question_attempt_step The step whose values should be used to determine feedback,
+     * or an empty step if no applicable step exists.
+     */
+    public function get_feedback_step() {
+
+        $graded_step = $this->get_graded_step();
+
+        // Return the most recently graded step, if it exists.
+        // Otherwise, return an empty step.
+        if($graded_step !== null) {
+          return $graded_step;
+        } else {
+          return new question_attempt_step_read_only();
+        }
+    }
+
+    /**
      * Determine whether a question state represents an "improvable" result,
      * that is, whether the user can still improve their score.
      *

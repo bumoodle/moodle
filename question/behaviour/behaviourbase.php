@@ -318,6 +318,20 @@ abstract class question_behaviour {
     }
 
     /**
+     * Returns the step which should be used to generate specific and general feedback.
+     * 
+     * @return question_attempt_step The step whose values should be used to determine feedback,
+     * or an empty step if no applicable step exists.
+     */
+    public function get_feedback_step() {
+
+        // By default, we'll return the most recent step; as this will work for _most_ of
+        // the question behaviours. Non-compliant question behaviors (e.g. adaptive) must
+        // override this function in their own behaviors.
+        return $this->qa->get_last_step();
+    }
+
+    /**
      * @return array subpartid => object with fields
      *      ->responseclassid matches one of the values returned from
      *                        quetion_type::get_possible_responses.

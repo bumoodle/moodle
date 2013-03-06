@@ -123,7 +123,7 @@ class qtype_truefalse_renderer extends qtype_renderer {
 
     public function specific_feedback(question_attempt $qa) {
         $question = $qa->get_question();
-        $response = $qa->get_last_qt_var('answer', '');
+        $response = $qa->get_feedback_qt_var('answer', '');
 
         if ($response) {
             return $question->format_text($question->truefeedback, $question->truefeedbackformat,

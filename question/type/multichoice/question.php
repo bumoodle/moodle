@@ -89,6 +89,15 @@ abstract class qtype_multichoice_base extends question_graded_automatically {
 
     public abstract function get_response(question_attempt $qa);
 
+    /**
+     * Returns the best-suited response for use in generation of user feedback.
+     *
+     * @return array All QT data relevant to the user's response.
+     * @param question_attempt $qa The question attempt object for which the response 
+     *   should be retrieved.
+     */
+    public abstract function get_feedback_response(question_attempt $qa);
+
     public abstract function is_choice_selected($response, $value);
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
@@ -225,6 +234,17 @@ class qtype_multichoice_single_question extends qtype_multichoice_base {
 
     public function get_response(question_attempt $qa) {
         return $qa->get_last_qt_var('answer', -1);
+    }
+
+    /**
+     * Returns the best-suited response for use in generation of user feedback.
+     *
+     * @return array An array containing the user's single selection.
+     * @param question_attempt $qa The question attempt object for which the response 
+     *   should be retrieved.
+     */
+    public function get_feedback_response(question_attempt $qa) {
+        return $qa->get_feedback_qt_var('answer', -1);
     }
 
     public function is_choice_selected($response, $value) {
@@ -430,6 +450,17 @@ class qtype_multichoice_multi_question extends qtype_multichoice_base {
 
     public function get_response(question_attempt $qa) {
         return $qa->get_last_qt_data();
+    }
+
+    /**
+     * Returns the best-suited response for use in generation of user feedback.
+     *
+     * @return array An array containing all QT data for the most  response.
+     * @param question_attempt $qa The question attempt object for which the response 
+     *   should be retrieved.
+     */
+    public function get_feedback_response(question_attempt $qa) {
+        return $qa->get_feedback_qt_data(); 
     }
 
     public function is_choice_selected($response, $value) {

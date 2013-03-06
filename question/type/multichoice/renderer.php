@@ -57,6 +57,7 @@ abstract class qtype_multichoice_renderer_base extends qtype_with_combined_feedb
 
         $question = $qa->get_question();
         $response = $question->get_response($qa);
+        $feedback_response = $question->get_feedback_response($qa);
 
         $inputname = $qa->get_qt_field_name('answer');
         $inputattributes = array(
@@ -78,6 +79,11 @@ abstract class qtype_multichoice_renderer_base extends qtype_with_combined_feedb
             $inputattributes['value'] = $this->get_input_value($value);
             $inputattributes['id'] = $this->get_input_id($qa, $value);
             $isselected = $question->is_choice_selected($response, $value);
+            
+            // Determine if the given response was selected during the last feedback step.
+            $selected_for_feedback = $question->is_choice_selected($feedback_response, $value);
+            
+            
             if ($isselected) {
                 $inputattributes['checked'] = 'checked';
             } else {
@@ -103,7 +109,7 @@ abstract class qtype_multichoice_renderer_base extends qtype_with_combined_feedb
             // oumultiresponse question type. It would be good to refactor to
             // avoid refering to it here.
             if ($options->feedback && empty($options->suppresschoicefeedback) &&
-                    $isselected && trim($ans->feedback)) {
+                    $selected_for_feedback && trim($ans->feedback)) {
                 $feedback[] = html_writer::tag('div',
                         $question->make_html_inline($question->format_text(
                                 $ans->feedback, $ans->feedbackformat,

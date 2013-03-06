@@ -142,12 +142,12 @@ class qtype_numerical_renderer extends qtype_renderer {
         $question = $qa->get_question();
 
         if ($question->has_separate_unit_field()) {
-            $selectedunit = $qa->get_last_qt_var('unit');
+            $selectedunit = $qa->get_feedback_qt_var('unit');
         } else {
             $selectedunit = null;
         }
         list($value, $unit, $multiplier) = $question->ap->apply_units(
-                $qa->get_last_qt_var('answer'), $selectedunit);
+                $qa->get_feedback_qt_var('answer'), $selectedunit);
         $answer = $question->get_matching_answer($value, $multiplier);
 
         if ($answer && $answer->feedback) {

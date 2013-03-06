@@ -107,7 +107,18 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
         if (!is_null($prevgrade)) {
             $pendingstep->set_fraction($prevgrade);
         }
-        $pendingstep->set_state(question_state::$todo);
+
+        // Get the most recently graded step.
+        $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
+
+        // If the previous step was _complete_, remain in the complete state.
+        // Otherwise, move back to the To-Do state, as we're expecting further input.
+        if ($prevstep->get_state() == question_state::$complete) {
+          $pendingstep->set_state(question_state::$complete);
+        } else {
+          $pendingstep->set_state(question_state::$todo);
+        }
+
         return $status;
     }
 

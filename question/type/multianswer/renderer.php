@@ -164,17 +164,12 @@ abstract class qtype_multianswer_subq_renderer_base extends qtype_renderer {
  */
 class qtype_multianswer_textfield_renderer extends qtype_multianswer_subq_renderer_base {
 
-    public function subquestion(question_attempt $qa, question_display_options $options,
-            $index, question_graded_automatically $subq) {
-
-        $fieldprefix = 'sub' . $index . '_';
-        $fieldname = $fieldprefix . 'answer';
-
-        $response = $qa->get_last_qt_var($fieldname);
+    private function find_matching_answer($response, question_graded_automatically $subq) {
+    
         if ($subq->qtype->name() == 'shortanswer') {
             $matchinganswer = $subq->get_matching_answer(array('answer' => $response));
         } else if ($subq->qtype->name() == 'numerical') {
-            list($value, $unit, $multiplier) = $subq->ap->apply_units($response, '');
+            list($value,,) = $subq->ap->apply_units($response, '');
             $matchinganswer = $subq->get_matching_answer($value, 1);
         } else {
             $matchinganswer = $subq->get_matching_answer($response);
@@ -187,6 +182,26 @@ class qtype_multianswer_textfield_renderer extends qtype_multianswer_subq_render
                 $matchinganswer = new question_answer(0, '', 0.0, '', FORMAT_HTML);
             }
         }
+
+        return $matchinganswer;
+    }
+
+
+    public function subquestion(question_attempt $qa, question_display_options $options,
+            $index, question_graded_automatically $subq) {
+
+        $fieldprefix = 'sub' . $index . '_';
+        $fieldname = $fieldprefix . 'answer';
+
+        // Get both the current response, and the response off of which feedback should
+        // be based.
+        $response = $qa->get_last_qt_var($fieldname);
+        $feedback_response = $qa->get_feedback_qt_var($fieldname);
+
+        // Find the answers which match the current response and the response off of which
+        // feedback should be based.
+        $matchinganswer = $this->find_matching_answer($response, $subq);
+        $feedbackanswer = $this->find_matching_answer($feedback_response, $subq);
 
         // Work out a good input field size.
         $size = max(1, strlen(trim($response)) + 1);
@@ -209,8 +224,8 @@ class qtype_multianswer_textfield_renderer extends qtype_multianswer_subq_render
 
         $feedbackimg = '';
         if ($options->correctness) {
-            $inputattributes['class'] = $this->feedback_class($matchinganswer->fraction);
-            $feedbackimg = $this->feedback_image($matchinganswer->fraction);
+            $inputattributes['class'] = $this->feedback_class($feedbackanswer->fraction);
+            $feedbackimg = $this->feedback_image($feedbackanswer->fraction);
         }
 
         if ($subq->qtype->name() == 'shortanswer') {
@@ -219,9 +234,9 @@ class qtype_multianswer_textfield_renderer extends qtype_multianswer_subq_render
             $correctanswer = $subq->get_correct_answer();
         }
 
-        $feedbackpopup = $this->feedback_popup($subq, $matchinganswer->fraction,
-                $subq->format_text($matchinganswer->feedback, $matchinganswer->feedbackformat,
-                        $qa, 'question', 'answerfeedback', $matchinganswer->id),
+        $feedbackpopup = $this->feedback_popup($subq, $feedbackanswer->fraction,
+                $subq->format_text($feedbackanswer->feedback, $feedbackanswer->feedbackformat,
+                        $qa, 'question', 'answerfeedback', $feedbackanswer->id),
                 s($correctanswer->answer), $options);
 
         $output = html_writer::start_tag('span', array('class' => 'subquestion'));

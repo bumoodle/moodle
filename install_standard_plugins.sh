@@ -33,13 +33,17 @@ echo '/course/format/topsearch' >> .git/info/exclude
 # Question Behaviours
 #
 
-#Weighted Adaptive (with Hints)
-git clone git://github.com/bumoodle/moodle-qbehavior_adaptiveweighted.git question/behaviour/adaptiveweighted
+#Weighted Adaptive 
+git clone git://github.com/bumoodle/moodle-qbehaviour_adaptiveweighted.git question/behaviour/adaptiveweighted
 echo '/question/behaviour/adaptiveweighted' >> .git/info/exclude
 
 #Weighted Adaptive (with Hints)
-git clone git://github.com/bumoodle/moodle-qbehavior_adaptiveweightedhints.git question/behaviour/adaptiveweightedhints
+git clone git://github.com/bumoodle/moodle-qbehaviour_adaptiveweightedhints.git question/behaviour/adaptiveweightedhints
 echo '/question/behaviour/adaptiveweightedhints' >> .git/info/exclude
+
+#Weighted Adaptive (Queued)
+git clone git://github.com/bumoodle/moodle-qbehaviour_adaptiveweighted_queued.git question/behaviour/adaptiveweighted_queued
+echo '/question/behaviour/adaptiveweighted_queued' >> .git/info/exclude
 
 #Save Only ("non-grade")
 git clone git://github.com/bumoodle/moodle-qbehaviour_savenongraded.git question/behaviour/savenongraded
@@ -88,6 +92,10 @@ echo '/question/type/checkoff' >> .git/info/exclude
 #Partner Psuedo-Question
 git clone git://github.com/bumoodle/moodle-qtype_partner.git question/type/partner
 echo '/question/type/partner' >> .git/info/exclude
+
+#Online Judge (Coding) questions
+git clone git://github.com/bumoodle/moodle-qtype_onlinejudge.git question/type/onlinejudge
+echo '/question/type/onlinejudge' >> .git/info/exclude
 
 #
 # Activity Modules
@@ -155,6 +163,10 @@ echo '/local/quizsync' >> .git/info/exclude
 #jQuery
 git clone git://github.com/bumoodle/moodle-local_jquery.git local/jquery
 echo '/local/jquery' >> .git/info/exclude
+
+#Error Logger Hack
+git clone git://github.com/bumoodle/moodle-local_onlinejudge.git local/onlinejudge
+echo '/local/onlinejudge' >> .git/info/exclude
 
 #Error Logger Hack
 git clone git://github.com/bumoodle/moodle-local_errorlogger.git local/errorlogger

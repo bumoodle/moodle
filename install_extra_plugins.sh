@@ -26,8 +26,12 @@ git clone git://github.com/bumoodle/moodle-block_unanswered_discussions.git -b $
 echo '/blocks/unanswered_discussions' >> .git/info/exclude
 
 # Configurable Reports block
-git clone git://github.com/bumoodle/moodle-block_configurable_reports.git -b $VERSION blocks/configurable_reports
-echo '/blocks/configurable_reports' >> .git/info/exclude
+#git clone git://github.com/bumoodle/moodle-block_configurable_reports.git -b $VERSION blocks/configurable_reports
+#echo '/blocks/configurable_reports' >> .git/info/exclude
+
+#Custom SQL Reports
+git clone https://github.com/timhunt/moodle-report_customsql.git report/customsql
+echo '/report/customsql' >> .git/info/exclude
 
 # "View as Example" block
 git clone git://github.com/moodleou/moodle-block_viewasexample.git blocks/viewasexample

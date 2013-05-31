@@ -1,44 +1,22 @@
 #!/usr/bin/env bash
-VERSION=MOODLE_23_STABLE
-
 #
+# Installs/updates the Moodle@BU extra plugins.
+#
+
+. install_helpers.sh
+VERSION=MOODLE_24_STABLE
+
+# Question Types:
+install_from_git https://github.com/lechunche/type_calc_sheet.git question/type/type_calc_sheet #Spreadsheet.
+install_from_git git://github.com/remotelearner/moodle-mod_questionnaire question/type/algebra  #Algebra
+
 # Activity Modules
-#
+install_from_git git://github.com/remotelearner/moodle-mod_questionnaire.git mod/questionnaire # Questionnaire
 
-# Questionnaire Plugin
-git clone git://github.com/remotelearner/moodle-mod_questionnaire.git -b $VERSION mod/questionnaire
-echo '/mod/questionnaire' >> .git/info/exclude
-
-#
 # Blocks
-# 
-
-# AJAX Marking Block Plugin
-git clone git://github.com/mattgibson/moodle-block_ajax_marking.git -b $VERSION blocks/ajax_marking
-echo '/blocks/ajax_marking' >> .git/info/exclude
-
-# "Message My Teacher" block
-git clone git://github.com/marxjohnson/moodle-block_messageteacher.git blocks/messageteacher
-echo '/blocks/messageteacher' >> .git/info/exclude
-
-# Unanswered Discussions block
-git clone git://github.com/bumoodle/moodle-block_unanswered_discussions.git -b $VERSION blocks/unanswered_discussions
-echo '/blocks/unanswered_discussions' >> .git/info/exclude
-
-# Configurable Reports block
-#git clone git://github.com/bumoodle/moodle-block_configurable_reports.git -b $VERSION blocks/configurable_reports
-#echo '/blocks/configurable_reports' >> .git/info/exclude
-
-#Custom SQL Reports
-git clone https://github.com/timhunt/moodle-report_customsql.git report/customsql
-echo '/report/customsql' >> .git/info/exclude
-
-# "View as Example" block
-git clone git://github.com/moodleou/moodle-block_viewasexample.git blocks/viewasexample
-echo '/blocks/viewasexample' >> .git/info/exclude
-
-#
-# "Mass Actions" block
-#
-git clone git://github.com/bumoodle/moodle-block_massaction.git blocks/massaction
-echo '/blocks/massaction' >> .git/info/exclude
+install_from_git git://github.com/mattgibson/moodle-block_ajax_marking.git blocks/ajax_marking "-b $VERSION" # AJAX Marking Block Plugin 
+install_from_git git://github.com/marxjohnson/moodle-block_messageteacher.git blocks/messageteacher # "Message My Teacher" block 
+install_from_git git://github.com/bumoodle/moodle-block_unanswered_discussions.git blocks/unanswered_discussions "-b $VERSION" # Unanswered Discussions block 
+install_from_git https://github.com/timhunt/moodle-report_customsql.git report/customsql #Custom SQL Reports 
+install_from_git git://github.com/moodleou/moodle-block_viewasexample.git blocks/viewasexample # "View as Example" block 
+install_from_git git://github.com/bumoodle/moodle-block_massaction.git blocks/massaction # "Mass Actions" block

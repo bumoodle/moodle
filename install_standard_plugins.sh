@@ -45,7 +45,7 @@ install_from_git git://github.com/bumoodle/moodle-block_quickmail.git blocks/qui
 install_from_git git://github.com/bumoodle/moodle-gradereport_projected.git grade/report/projected #Project Final Grade
 
 #JW Player Filter (for streaming media on Flash/HTML5)
-install_from_git git://github.com/bumoodle/moodle-filter_jwplayer.git filter/jwplayerfilter
+install_from_git git://github.com/bumoodle/moodle-filter_streaming.git filter/streaming
 
 # Local 
 install_from_git git://github.com/bumoodle/moodle-local_quizsync.git local/quizsync #Quiz Sync library 

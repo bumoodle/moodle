@@ -138,7 +138,13 @@ class MoodleQuickForm_duration extends MoodleQuickForm_group {
         $this->_elements[] = @MoodleQuickForm::createElement('select', 'timeunit', get_string('timeunit', 'form'), $this->get_units(), $attributes, true);
         // If optional we add a checkbox which the user can use to turn if on
         if($this->_options['optional']) {
-            $this->_elements[] = @MoodleQuickForm::createElement('checkbox', 'enabled', null, get_string('enable'), $this->getAttributes(), true);
+            $attributes = $this->getAttributes();
+            if (isset($attributes['class'])) {
+                $attributes['class'] .= ' hasDependency';
+            } else {
+                $attributes['class'] = 'hasDependency';
+            }
+            $this->_elements[] = @MoodleQuickForm::createElement('checkbox', 'enabled', null, get_string('enable'), $attributes, true);
         }
         foreach ($this->_elements as $element){
             if (method_exists($element, 'setHiddenLabel')){

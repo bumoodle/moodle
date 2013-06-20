@@ -148,7 +148,7 @@ class qtype_essay_question_test extends advanced_testcase {
         // Create sample attachments to use in testing.
         $helper = test_question_maker::get_test_helper('essay');
         $attachments = array();
-        for ($i = 0; $i < 4; ++ $i) {
+        for ($i = 0; $i < 4; ++$i) {
             $attachments[$i] = $helper->make_attachments_saver($i);
         }
 

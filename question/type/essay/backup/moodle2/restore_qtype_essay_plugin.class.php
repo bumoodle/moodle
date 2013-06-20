@@ -103,8 +103,10 @@ class restore_qtype_essay_plugin extends restore_qtype_plugin {
             $defaultoptions = new stdClass();
             $defaultoptions->questionid = $q->id;
             $defaultoptions->responseformat = 'editor';
+            $defaultoptions->responserequired = 1;
             $defaultoptions->responsefieldlines = 15;
             $defaultoptions->attachments = 0;
+            $defaultoptions->attachmentsrequired = 0;
             $defaultoptions->graderinfo = '';
             $defaultoptions->graderinfoformat = FORMAT_HTML;
             $defaultoptions->responsetemplate = '';

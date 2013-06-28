@@ -22,6 +22,9 @@ install_from_git https://github.com/timhunt/moodle-report_customsql.git report/c
 install_from_git git://github.com/moodleou/moodle-block_viewasexample.git blocks/viewasexample # "View as Example" block 
 install_from_git git://github.com/bumoodle/moodle-block_massaction.git blocks/massaction # "Mass Actions" block
 
+# Grade Reports
+install_from_git git://github.com/lsuits/grade_breakdown.git grade/report/grade_breakdown
+
 #STACK and prerequsites
 install_from_git git://github.com/maths/moodle-qbehaviour_dfexplicitvaildate.git question/behaviour/dfexplicitvaildate
 install_from_git git://github.com/maths/moodle-qbehaviour_dfcbmexplicitvaildate.git question/behaviour/dfcbmexplicitvaildate

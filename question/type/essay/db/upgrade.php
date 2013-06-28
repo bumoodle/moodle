@@ -140,6 +140,25 @@ function xmldb_qtype_essay_upgrade($oldversion) {
     // Moodle v2.5.0 release upgrade line.
     // Put any upgrade step following this.
 
+    if ($oldversion < 2013062700) {
+
+        // Create new fields responserequired (indicates whether inline response is required)
+        // and attachmentsrequired (indicates whether attachments should be required).
+
+        $table = new xmldb_table('qtype_essay_options');
+        $field = new xmldb_field('responserequired', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1', 'responseformat');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('attachmentsrequired', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'attachments');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Essay savepoint reached.
+        upgrade_plugin_savepoint(true, 2013062700, 'qtype', 'essay');
+    }
 
     return true;
 }

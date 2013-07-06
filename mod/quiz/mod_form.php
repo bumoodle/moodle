@@ -217,7 +217,6 @@ class mod_quiz_mod_form extends moodleform_mod {
         $mform->addHelpButton('attemptonlast', 'eachattemptbuildsonthelast', 'quiz');
         $mform->setAdvanced('attemptonlast', $quizconfig->attemptonlast_adv);
         $mform->setDefault('attemptonlast', $quizconfig->attemptonlast);
-        $mform->disabledIf('attemptonlast', 'attempts', 'eq', 1);
 
         // -------------------------------------------------------------------------------
         $mform->addElement('header', 'reviewoptionshdr',

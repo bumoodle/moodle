@@ -78,6 +78,22 @@ class qtype_essay_test_helper extends question_test_helper {
         return $q;
     }
 
+    public function get_essay_question_form_data_editorfilepicker() {
+        $fromform = new stdClass();
+
+        $fromform->name = 'Essay question with filepicker and attachments';
+        $fromform->questiontext = array('text' => 'Please write a story about a frog.', 'format' => FORMAT_HTML);
+        $fromform->defaultmark = 1.0;
+        $fromform->generalfeedback = array('text' => 'I hope your story had a beginning, a middle and an end.', 'format' => FORMAT_HTML);
+        $fromform->responseformat = 'editorfilepicker';
+        $fromform->responsefieldlines = 10;
+        $fromform->attachments = 3;
+        $fromform->graderinfo = array('text' => '', 'format' => FORMAT_HTML);
+        $fromform->responsetemplate = array('text' => '', 'format' => FORMAT_HTML);
+
+        return $fromform;
+    }
+
     /**
      * Makes an essay question using plain text input.
      * @return qtype_essay_question

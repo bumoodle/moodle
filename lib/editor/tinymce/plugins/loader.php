@@ -93,9 +93,6 @@ if ($mimetype === 'application/x-javascript' && $allowcache) {
 }
 
 // Serve file.
-if(!ini_get('zlib.output_compression')) {
-    header('Content-Length: ' . filesize($file));
-}
-
+header('Content-Length: ' . filesize($file));
 header('Content-Type: ' . $mimetype);
 readfile($file);

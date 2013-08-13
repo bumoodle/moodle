@@ -31,17 +31,16 @@ defined('MOODLE_INTERNAL') || die;
  */
 function page_supports($feature) {
     switch($feature) {
-        case FEATURE_MOD_ARCHETYPE:                   return MOD_ARCHETYPE_RESOURCE;
-        case FEATURE_GROUPS:                          return false;
-        case FEATURE_GROUPINGS:                       return false;
-        case FEATURE_GROUPMEMBERSONLY:                return true;
-        case FEATURE_MOD_INTRO:                       return true;
-        case FEATURE_COMPLETION_TRACKS_VIEWS:         return true;
-        case FEATURE_GRADE_HAS_GRADE:                 return false;
-        case FEATURE_GRADE_OUTCOMES:                  return false;
-        case FEATURE_BACKUP_MOODLE2:                  return true;
-        case FEATURE_SHOW_DESCRIPTION:                return true;
-        case FEATURE_MODEDIT_DEFAULT_COMPLETION:      return false; //[BU] disable completion by default
+        case FEATURE_MOD_ARCHETYPE:           return MOD_ARCHETYPE_RESOURCE;
+        case FEATURE_GROUPS:                  return false;
+        case FEATURE_GROUPINGS:               return false;
+        case FEATURE_GROUPMEMBERSONLY:        return true;
+        case FEATURE_MOD_INTRO:               return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
+        case FEATURE_GRADE_HAS_GRADE:         return false;
+        case FEATURE_GRADE_OUTCOMES:          return false;
+        case FEATURE_BACKUP_MOODLE2:          return true;
+        case FEATURE_SHOW_DESCRIPTION:        return true;
 
         default: return null;
     }
@@ -239,7 +238,7 @@ function page_user_complete($course, $user, $mod, $page) {
  *
  * See {@link get_array_of_activities()} in course/lib.php
  *
- * @param cm_info $coursemodule
+ * @param stdClass $coursemodule
  * @return cached_cm_info Info to customise main page display
  */
 function page_get_coursemodule_info($coursemodule) {

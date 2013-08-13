@@ -36,7 +36,7 @@ function js_send_cached($jspath, $etag, $filename = 'javascript.php') {
 
     $lifetime = 60*60*24*60; // 60 days only - the revision may get incremented quite often
 
-    header('Etag: '.$etag);
+    header('Etag: "'.$etag.'"');
     header('Content-Disposition: inline; filename="'.$filename.'"');
     header('Last-Modified: '. gmdate('D, d M Y H:i:s', filemtime($jspath)) .' GMT');
     header('Expires: '. gmdate('D, d M Y H:i:s', time() + $lifetime) .' GMT');
@@ -69,51 +69,10 @@ function js_send_uncached($js, $filename = 'javascript.php') {
     header('Pragma: ');
     header('Accept-Ranges: none');
     header('Content-Type: application/javascript; charset=utf-8');
-   
-    //Compress the JS, if necessary. See the documentation for the function below.
-    $js = compress_if_necessary($js);
-
     header('Content-Length: '.strlen($js));
 
     echo $js;
     die;
-}
-
-function compress_if_necessary($js) {
-    // If PHP's internal gzip output compression is on, we won't be able to correctly
-    // determine the value of the content-length header. Instead, we'll turn it off, and perform
-    // the same gzip encoding ourself.
-    //
-    // Note that many browsers will let this work correctly if we omit the content-length header,
-    // but Chromium/linux waits an irritating length of time before it accepts that the transmission is complete.
-    //
-    // TODO: Abstract this to a function (in moodlelib?) for use in weblib as well.
-    //
-    if(ini_get('zlib.output_compression') && ($server_accepts_gzip || $server_accepts_deflate)) {
-
-        // Turn off PHP's built-in zlib compression...
-        ini_set('zlib.output_compression','Off');
-
-        // And compress the data ourselves. This allow us to correctly set the 
-        // content-length header.
-
-        // If the server accepts gzip, prefer it.
-        if($server_accepts_gzip) {
-            $js = gzencode($js, 6);
-
-            // Let the recieving browser know that the data will be gzip-compressed.
-            @header('Content-Encoding: gzip');
-
-        // Otherwise, fall back to deflate.
-        } else {
-            $js = gzdeflate($js, 6);
-
-            // Let the recieving browser know that the data will be deflate-compressed.
-            @header('Content-Encoding: deflate');
-        }
-    }
-
-    return $js;
 }
 
 /**
@@ -127,7 +86,7 @@ function js_send_unmodified($lastmodified, $etag) {
     header('Expires: '. gmdate('D, d M Y H:i:s', time() + $lifetime) .' GMT');
     header('Cache-Control: public, max-age='.$lifetime);
     header('Content-Type: application/javascript; charset=utf-8');
-    header('Etag: '.$etag);
+    header('Etag: "'.$etag.'"');
     if ($lastmodified) {
         header('Last-Modified: '. gmdate('D, d M Y H:i:s', $lastmodified) .' GMT');
     }
@@ -147,6 +106,11 @@ function js_minify($files) {
     if (empty($files)) {
         return '';
     }
+
+    // We do not really want any 304 here!
+    // There does not seem to be any better way to prevent them here.
+    unset($_SERVER['HTTP_IF_NONE_MATCH']);
+    unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
 
     if (0 === stripos(PHP_OS, 'win')) {
         Minify::setDocRoot(); // IIS may need help
@@ -173,7 +137,7 @@ function js_minify($files) {
     $error = 'unknown';
     try {
         $result = Minify::serve('Files', $options);
-        if ($result['success']) {
+        if ($result['success'] and $result['statusCode'] == 200) {
             return $result['content'];
         }
     } catch (Exception $e) {

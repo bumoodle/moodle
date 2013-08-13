@@ -150,6 +150,12 @@ input#id_externalurl {
 .mform .fitem div.fitemtitle {
     .form-horizontal .control-label
 }
+.dir-rtl {
+    .form-item .form-label,
+    .mform .fitem div.fitemtitle {
+        float:right;
+    }
+}
 .form-defaultinfo,
 .form-label .form-shortname {
     .muted;
@@ -341,9 +347,16 @@ input[type="checkbox"] {
 .form-item .form-label label {
     margin-bottom: 0;
 }
+.dir-rtl .form-item .form-label label {
+     text-align:left;
+}
 .felement.ffilepicker {
     margin-top: 5px;
 }
 div#dateselector-calendar-panel {
     z-index: 3100; /* Set higher than the z-index of the filemanager - see MDL-39047. */
+}
+
+fieldset.coursesearchbox label {
+    display: inline;
 }

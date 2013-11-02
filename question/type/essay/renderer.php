@@ -79,6 +79,7 @@ class qtype_essay_renderer extends qtype_renderer {
         return $result;
     }
 
+
     /**
      * Displays any attached files when the question is in read-only mode.
      * @param question_attempt $qa the question attempt to display.
@@ -87,15 +88,35 @@ class qtype_essay_renderer extends qtype_renderer {
      */
     public function files_read_only(question_attempt $qa, question_display_options $options) {
         $files = $qa->get_last_qt_files('attachments', $options->context->id);
+
         $output = array();
 
         foreach ($files as $file) {
-            $output[] = html_writer::tag('p', html_writer::link($qa->get_response_file_url($file),
-                    $this->output->pix_icon(file_file_icon($file), get_mimetype_description($file),
-                    'moodle', array('class' => 'icon')) . ' ' . s($file->get_filename())));
+
+            switch($file->get_mimetype()) {
+
+                case 'image/jpeg':
+                case 'image/bmp';
+                case 'image/gif';
+                case 'image/png';
+                    //Create a picture-link to the image.
+                    $image =  html_writer::empty_tag('img', array('src' => $qa->get_response_file_url($file), 'style' => 'max-width: 100%;'));
+                    $link =  html_writer::link($qa->get_response_file_url($file), $image);
+                    $output[] = html_writer::tag('p', $link);
+                    break;
+
+                default:
+                    $output[] = html_writer::tag('p', html_writer::link($qa->get_response_file_url($file),
+                        $this->output->pix_icon(file_file_icon($file), get_mimetype_description($file),
+                        'moodle', array('class' => 'icon')) . ' ' . s($file->get_filename())));
+                    break;
+
+
+            }
         }
         return implode($output);
     }
+
 
     /**
      * Displays the input control for when the student should upload a single file.

@@ -263,6 +263,7 @@ a.skip:active {position: static;display: block;}
 .mform .fitem fieldset.felement {margin-left:15%;padding-left:1%;margin-bottom:0}
 .mform .error,
 .mform .required {color:#A00;}
+.mform span.error {display: inline-block;padding: 4px;margin-bottom: 4px;background-color: #F2DEDE;border: 1px solid #EED3D7;}
 .mform .required .fgroup span label {color:#000;}
 .mform .fdescription.required {color:#A00;text-align:right;}
 .dir-rtl .mform .fdescription.required {text-align:left;}
@@ -345,6 +346,7 @@ input#id_externalurl {direction:ltr;}
 .groupmanagementtable #potentialcell {width: 42%;}
 .groupmanagementtable #buttonscell {width: 16%;}
 .groupmanagementtable #buttonscell input {width: 80%;}
+.groupmanagementtable #buttonscell p.arrow_button input {width: auto;min-width: 80%;margin: 0 auto;}
 .groupmanagementtable #removeselect_wrapper,
 .groupmanagementtable #addselect_wrapper {width: 100%;}
 .groupmanagementtable #removeselect_wrapper label,
@@ -892,6 +894,10 @@ sup {vertical-align: super;}
     background-color:#AAA;
 }
 
+.moodle-dialogue-base .moodle-dialogue {
+    outline: #000 dotted 0;
+}
+
 .moodle-dialogue-base .hidden,
 .moodle-dialogue-base .moodle-dialogue-hidden {display:none;}
 .moodle-dialogue-base .moodle-dialogue {
@@ -1364,6 +1370,7 @@ div.badge .expireimage { width: 100px; height: 100px; left: 20px; top: 0px; }
 .statusbox.inactive { background-color: #FFEBA8; }
 .activatebadge { margin: 0px; text-align: left; vertical-align: middle; }
 .addcourse { float: right; }
+img#persona_signin { cursor: pointer; }
 
 /**
  * The date selector popup.

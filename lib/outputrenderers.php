@@ -345,6 +345,16 @@ class core_renderer extends renderer_base {
      */
     public function standard_head_html() {
         global $CFG, $SESSION;
+
+        // Before we output any content, we need to ensure that certain
+        // page components are set up.
+
+        // Blocks must be set up early as they may require javascript which
+        // has to be included in the page header before output is created.
+        foreach ($this->page->blocks->get_regions() as $region) {
+            $this->page->blocks->ensure_content_created($region, $this);
+        }
+
         $output = '';
         $output .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' . "\n";
         $output .= '<meta name="keywords" content="moodle, ' . $this->page->title . '" />' . "\n";
@@ -499,7 +509,10 @@ class core_renderer extends renderer_base {
                 $link= '<a title="' . $title . '" href="' . $url . '">' . $txt . '</a>';
                 $output .= '<div class="profilingfooter">' . $link . '</div>';
             }
-            $output .= '<div class="purgecaches"><a href="'.$CFG->wwwroot.'/'.$CFG->admin.'/purgecaches.php?confirm=1&amp;sesskey='.sesskey().'">'.get_string('purgecaches', 'admin').'</a></div>';
+            $purgeurl = new moodle_url('/admin/purgecaches.php', array('confirm' => 1,
+                'sesskey' => sesskey(), 'returnurl' => $this->page->url->out_as_local_url(false)));
+            $output .= '<div class="purgecaches">' .
+                    html_writer::link($purgeurl, get_string('purgecaches', 'admin')) . '</div>';
         }
         if (!empty($CFG->debugvalidators)) {
             // NOTE: this is not a nice hack, $PAGE->url is not always accurate and $FULLME neither, it is not a bug if it fails. --skodak
@@ -3331,9 +3344,19 @@ class core_renderer_ajax extends core_renderer {
      * Prepares the start of an AJAX output.
      */
     public function header() {
+        // MDL-39810: IE doesn't support JSON MIME type if version < 8 or when it runs in Compatibility View.
+        $supports_json_contenttype = !check_browser_version('MSIE') ||
+                (check_browser_version('MSIE', 8) &&
+                    !(preg_match("/MSIE 7.0/", $_SERVER['HTTP_USER_AGENT']) && preg_match("/Trident\/([0-9\.]+)/", $_SERVER['HTTP_USER_AGENT'])));
         // unfortunately YUI iframe upload does not support application/json
         if (!empty($_FILES)) {
             @header('Content-type: text/plain; charset=utf-8');
+            if (!$supports_json_contenttype) {
+                @header('X-Content-Type-Options: nosniff');
+            }
+        } else if (!$supports_json_contenttype) {
+            @header('Content-type: text/plain; charset=utf-8');
+            @header('X-Content-Type-Options: nosniff');
         } else {
             @header('Content-type: application/json; charset=utf-8');
         }

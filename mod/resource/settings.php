@@ -52,6 +52,8 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configmultiselect('resource/displayoptions',
         get_string('displayoptions', 'resource'), get_string('configdisplayoptions', 'resource'),
         $defaultdisplayoptions, $displayoptions));
+    $settings->add(new admin_setting_configcheckbox('resource/dontembedmobile', 
+        get_string('dontembedmobile', 'resource'), get_string('configdontembedmobile', 'resource'), 0));
 
     //--- modedit defaults -----------------------------------------------------------------------------------
     $settings->add(new admin_setting_heading('resourcemodeditdefaults', get_string('modeditdefaults', 'admin'), get_string('condifmodeditdefaults', 'admin')));

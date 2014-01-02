@@ -88,6 +88,11 @@ class tinymce_texteditor extends texteditor {
         if ($fpoptions) {
             $PAGE->requires->js_init_call('M.editor_tinymce.init_filepicker', array($elementid, $fpoptions), true);
         }
+
+        //If automatic collapsing of editors is on, allow the editors to be collapsed. 
+        if(!property_exists($CFG, 'collapse_editors') || $CFG->collapse_editors) {
+            $this->initialise_collapse_js();
+        }
     }
 
     protected function get_init_params($elementid, array $options=null) {

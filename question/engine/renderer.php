@@ -380,7 +380,7 @@ class core_question_renderer extends plugin_renderer_base {
             qtype_renderer $qtoutput, question_display_options $options) {
         $output = '';
         $output .= html_writer::nonempty_tag('div',
-                $qtoutput->feedback($qa, $options), array('class' => 'feedback'));
+                $behaviouroutput->qtype_feedback($qa, $qtoutput, $options), array('class' => 'feedback'));
         $output .= html_writer::nonempty_tag('div',
                 $behaviouroutput->feedback($qa, $options), array('class' => 'im-feedback'));
         return $output;

@@ -68,6 +68,27 @@ abstract class qbehaviour_renderer extends plugin_renderer_base {
         return '';
     }
 
+    /**
+     * Generate some HTML (which may be blank) that appears in the outcome area,
+     * describing any feedback provided by the current question type.
+     *
+     * This base method is acceptable for any behavior in which the most current step 
+     * is the step that's used to generate feedback; such as those which do not allow the 
+     * respondent to modify their answer in states which display feedback.
+     *
+     * Behaviors which allow the respondent to modify their answer while viewing feedback
+     * (e.g. adaptive) should override this function, as to provide feedback for the most
+     * appropriate question step.
+     *
+     * @param question_attempt $qa a question attempt.
+     * @param qtype_renderer $qtoutput the renderer for the question type being displayed
+     * @param question_display_options $options controls what should and should not be displayed.
+     * @return string HTML fragment.
+     */
+    public function qtype_feedback(question_attempt $qa, qtype_renderer $qtoutput, question_display_options $options) {
+        return $qtoutput->feedback($qa, $options);
+    }
+
     public function manual_comment_fields(question_attempt $qa, question_display_options $options) {
         $inputname = $qa->get_behaviour_field_name('comment');
         $id = $inputname . '_id';

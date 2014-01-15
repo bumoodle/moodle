@@ -54,6 +54,19 @@ class qbehaviour_adaptive_renderer extends qbehaviour_renderer {
                 $qa->get_behaviour()->get_adaptive_marks(), $options);
     }
 
+
+    public function qtype_feedback(question_attempt $qa, qtype_renderer $qtoutput, question_display_options $options) {
+
+        // For adaptive questions, we want to provide feedback for the most recently _graded_ case.
+        // To do so, we'll get an attempt with a history that's restricted to the items which have
+        // already been graded.
+        $feedbackqa = $qa->get_behaviour()->get_restricted_attempt_for_feedback();
+
+        // We'll ask the question type for feedback related to our restricted attempt.
+        return $qtoutput->feedback($feedbackqa, $options);
+    }
+
+
     /**
      * Display the scoring information about an adaptive attempt.
      * @param qbehaviour_adaptive_mark_details contains all the score details we need.

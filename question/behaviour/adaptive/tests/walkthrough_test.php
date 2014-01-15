@@ -74,6 +74,45 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
         return new question_no_pattern_expectation('/'.preg_quote($penaltyinfo, '/').'/');
     }
 
+    /** 
+     * Generates an expectation which expects that the questions's output 
+     * will contain the given piece of per-answer feedback. 
+     * 
+     * @param string answer The specific answer object which will 
+     *     provide the specific feedback. If omitted, the expectation will verify
+     *     the presence of specific feedback, without checking the feedback's content.
+     */
+    protected function get_contains_specific_feedback_expectation($answer = null) {
+
+        // If no answer was provided, ensure that _some_ specific feedback was provided.
+        // This is consistent with the behavior of get_does_not_contain_specific_feedback_expectation.
+        if ($answer === null) {
+            return new question_pattern_expectation('/class="specificfeedback"/');
+        } else {
+            return new question_pattern_expectation('/'.preg_quote($answer->feedback, '/').'/');
+        }
+    }
+
+    /** 
+     * Generates an expectation which expects that the questions's output 
+     * will _not_ contain the given piece of per-answer feedback. 
+     * 
+     * @param string answer The specific answer object which will 
+     *     provide the specific feedback. If omitted, the expectation will 
+     *     expect _no_ specific feedback to be provided.
+     */
+    protected function get_does_not_contain_specific_feedback_expectation($answer = null) {
+
+        // If we have no answer, delegate to the base class, maintaining the default functionality.
+        // Otherwise, ensure this specific feedback does not appear.
+        if ($answer === null) {
+            return parent::get_does_not_contain_specific_feedback_expectation();
+        } else {
+            return new question_no_pattern_expectation('/'.preg_quote($answer->feedback, '/').'/');
+        }
+    }
+
+
     public function test_adaptive_multichoice() {
 
         // Create a multiple choice, single response question.
@@ -83,6 +122,11 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
 
         $rightindex = $this->get_mc_right_answer_index($mc);
         $wrongindex = ($rightindex + 1) % 3;
+
+        // Get a reference to the right and wrong answer objects.
+        $order = $mc->get_order(new question_attempt($mc, $this->quba->get_id()));
+        $rightanswer = $mc->answers[$order[$rightindex]];
+        $wronganswer = $mc->answers[$order[$wrongindex]];
 
         // Check the initial state.
         $this->check_current_state(question_state::$todo);
@@ -94,6 +138,7 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_mc_radio_expectation(1, true, false),
                 $this->get_contains_mc_radio_expectation(2, true, false),
                 $this->get_contains_submit_button_expectation(true),
+                $this->get_does_not_contain_specific_feedback_expectation(),
                 $this->get_does_not_contain_feedback_expectation());
 
         // Process a submit.
@@ -109,6 +154,9 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_mc_radio_expectation(($wrongindex + 2) % 3, true, false),
                 $this->get_contains_incorrect_expectation(),
                 $this->get_contains_penalty_info_expectation(1.00),
+                // Ensure that we get the right feedback for this answer.
+                $this->get_contains_specific_feedback_expectation($wronganswer),
+                $this->get_does_not_contain_specific_feedback_expectation($rightanswer),
                 $this->get_does_not_contain_total_penalty_expectation());
         $this->assertRegExp('/B|C/',
                 $this->quba->get_response_summary($this->slot));
@@ -123,7 +171,12 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_mark_summary(0),
                 $this->get_contains_mc_radio_expectation($rightindex, true, true),
                 $this->get_contains_mc_radio_expectation(($rightindex + 1) % 3, true, false),
-                $this->get_contains_mc_radio_expectation(($rightindex + 2) % 3, true, false));
+                $this->get_contains_mc_radio_expectation(($rightindex + 2) % 3, true, false),
+
+                // Ensure the specific feedback has not changed, per MDL-35325.
+                $this->get_contains_specific_feedback_expectation($wronganswer),
+                $this->get_does_not_contain_specific_feedback_expectation($rightanswer));
+
         $this->assertRegExp('/B|C/',
                 $this->quba->get_response_summary($this->slot));
 
@@ -139,6 +192,8 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_mc_radio_expectation(($rightindex + 1) % 3, true, false),
                 $this->get_contains_mc_radio_expectation(($rightindex + 2) % 3, true, false),
                 $this->get_contains_correct_expectation(),
+                $this->get_contains_specific_feedback_expectation($rightanswer),
+                $this->get_does_not_contain_specific_feedback_expectation($wronganswer),
                 $this->get_does_not_contain_penalty_info_expectation(),
                 $this->get_does_not_contain_total_penalty_expectation());
         $this->assertEquals('A',
@@ -252,10 +307,15 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
         $this->check_current_output(
                 $this->get_contains_marked_out_of_summary(),
                 $this->get_contains_submit_button_expectation(true),
+                $this->get_does_not_contain_specific_feedback_expectation(),
                 $this->get_does_not_contain_feedback_expectation());
 
         // Submit a partially correct answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'toad'));
+        $partialresponse = array('-submit' => 1, 'answer' => 'toad');
+        $this->process_submission($partialresponse);
+
+        // Get the answer object for the submitted answer.
+        $partialanswer = $sa->get_matching_answer($partialresponse);
 
         // Verify.
         $this->check_current_state(question_state::$todo);
@@ -266,12 +326,17 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_mark_summary(0.8),
                 $this->get_contains_submit_button_expectation(true),
                 $this->get_contains_partcorrect_expectation(),
+                $this->get_contains_specific_feedback_expectation($partialanswer),
                 $this->get_contains_penalty_info_expectation(0.33),
                 $this->get_does_not_contain_total_penalty_expectation(),
                 $this->get_does_not_contain_validation_error_expectation());
 
         // Submit an incorrect answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'bumblebee'));
+        $incorrectresponse = array('-submit' => 1, 'answer' => 'bumblebee');
+        $this->process_submission($incorrectresponse);
+
+        // Get the answer object for the submitted answer.
+        $incorrectanswer = $sa->get_matching_answer($incorrectresponse);
 
         // Verify.
         $this->check_current_state(question_state::$todo);
@@ -284,6 +349,24 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_incorrect_expectation(),
                 $this->get_contains_penalty_info_expectation(0.33),
                 $this->get_contains_total_penalty_expectation(0.67),
+                $this->get_contains_specific_feedback_expectation($incorrectanswer),
+                $this->get_does_not_contain_validation_error_expectation());
+
+        // Change the answer to the correct answer, but do not submit.
+        $this->process_submission(array('answer' => 'frog'));
+        $correctanswer = $sa->get_correct_answer();
+
+        // Verify that nothing has changed.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(0.8);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.8),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_incorrect_expectation(),
+                $this->get_contains_penalty_info_expectation(0.33),
+                $this->get_contains_total_penalty_expectation(0.67),
+                $this->get_contains_specific_feedback_expectation($incorrectanswer),
+                $this->get_does_not_contain_specific_feedback_expectation($correctanswer),
                 $this->get_does_not_contain_validation_error_expectation());
 
         // Submit a correct answer.
@@ -298,6 +381,7 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_mark_summary(0.8),
                 $this->get_contains_submit_button_expectation(true),
                 $this->get_contains_correct_expectation(),
+                $this->get_contains_specific_feedback_expectation($correctanswer),
                 $this->get_does_not_contain_penalty_info_expectation(),
                 $this->get_does_not_contain_total_penalty_expectation(),
                 $this->get_does_not_contain_validation_error_expectation());
@@ -611,7 +695,30 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_does_not_contain_feedback_expectation());
 
         // Submit the correct answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => '3.14'));
+        $correctresponse = array('-submit' => 1, 'answer' => '3.14');
+        $this->process_submission($correctresponse);
+
+        // And get the correct answer object.
+        $correctanswer = $sa->get_correct_answer();
+
+        // Verify.
+        $this->check_current_state(question_state::$complete);
+        $this->check_current_mark(1);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(1),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_correct_expectation(),
+                $this->get_contains_specific_feedback_expectation($correctanswer),
+                $this->get_does_not_contain_penalty_info_expectation(),
+                $this->get_does_not_contain_total_penalty_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+
+        // Save, but do not submit, an incorrect answer.
+        $incorrectresponse = array('answer' => '-5');
+        $this->process_submission($incorrectresponse);
+
+        // Get the answer that corresponds to the given response.
+        $incorrectanswer = $sa->get_matching_answer($incorrectresponse, null);
 
         // Verify.
         $this->check_current_state(question_state::$complete);
@@ -622,10 +729,13 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_correct_expectation(),
                 $this->get_does_not_contain_penalty_info_expectation(),
                 $this->get_does_not_contain_total_penalty_expectation(),
+                $this->get_contains_specific_feedback_expectation($correctanswer),
+                $this->get_does_not_contain_specific_feedback_expectation($incorrectanswer),
                 $this->get_does_not_contain_validation_error_expectation());
 
         // Submit an incorrect answer.
-        $this->process_submission(array('-submit' => 1, 'answer' => '-5'));
+        $incorrectresponse['-submit'] = 1;
+        $this->process_submission($incorrectresponse);
 
         // Verify.
         $this->check_current_state(question_state::$complete);
@@ -636,6 +746,7 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_incorrect_expectation(),
                 $this->get_does_not_contain_penalty_info_expectation(),
                 $this->get_does_not_contain_total_penalty_expectation(),
+                $this->get_contains_specific_feedback_expectation($incorrectanswer),
                 $this->get_does_not_contain_validation_error_expectation());
 
         // Finish the attempt.

@@ -216,6 +216,43 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
     }
 
     /**
+     * Get the _index_ of the most recently graded step.
+     * @return mixed the integer index ("sequence number") of the most recently
+     *    graded step, or null if no graded steps exist.
+     */
+    protected function get_graded_step_index() {
+
+        // Get the step that we'll use to provide feedback.
+        $gradedstep = $this->get_graded_step();
+
+        // Find the index of the graded step.
+        $iterator = $this->qa->get_reverse_step_iterator();
+        foreach ($iterator as $index => $step) {
+            if ($step === $gradedstep) {
+                return $index;
+            }
+        }
+
+        // If we didn't find the relevant step, return the
+        // first step-- which should be the initialization of
+        // the question.
+        return 0;
+    }
+
+    /**
+     * Gets a question attempt whose history is restricted to only the steps
+     * which have contributed to the respondent's grade: that is, steps prior to
+     * and including the most recenlty graded step.
+     *
+     * @return question_attempt_step the most recently graded step.
+     */
+    public function get_restricted_attempt_for_feedback() {
+        $stepindex = $this->get_graded_step_index();
+        return new question_attempt_with_restricted_history($this->qa, $stepindex, 'adaptive');
+    }
+
+
+    /**
      * Determine whether a question state represents an "improvable" result,
      * that is, whether the user can still improve their score.
      *

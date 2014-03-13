@@ -91,6 +91,7 @@ class restore_wiki_activity_structure_step extends restore_activity_structure_st
             $newitemid = false;
         }
 
+        //~ktemkin: Also restore linked files MDL-33505
         $this->set_mapping('wiki_subwiki', $oldid, $newitemid, true);
     }
 

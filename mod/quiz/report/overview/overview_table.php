@@ -148,7 +148,7 @@ class quiz_overview_table extends quiz_attempts_report_table {
     /**
      * Format an entry in an average row.
      * @param object $record with fields grade and numaveraged
-     */
+    [5~ */
     protected function format_average($record, $question = false) {
         if (is_null($record->grade)) {
             $average = '-';
@@ -280,7 +280,7 @@ class quiz_overview_table extends quiz_attempts_report_table {
     }
 
     protected function requires_latest_steps_loaded() {
-        return $this->options->slotmarks;
+        return $this->options->slotmarks || $this->should_show_regraded_questions();
     }
 
     protected function is_latest_step_column($column) {
@@ -297,7 +297,7 @@ class quiz_overview_table extends quiz_attempts_report_table {
     public function query_db($pagesize, $useinitialsbar = true) {
         parent::query_db($pagesize, $useinitialsbar);
 
-        if ($this->options->slotmarks && has_capability('mod/quiz:regrade', $this->context)) {
+        if (has_capability('mod/quiz:regrade', $this->context)) {
             $this->regradedqs = $this->get_regraded_questions();
         }
     }
@@ -313,5 +313,30 @@ class quiz_overview_table extends quiz_attempts_report_table {
         $regradedqs = $DB->get_records_select('quiz_overview_regrades',
                 'questionusageid ' . $qubaids->usage_id_in(), $qubaids->usage_id_in_params());
         return quiz_report_index_by_keys($regradedqs, array('questionusageid', 'slot'));
+    }
+
+    /**
+     * Returns true iff the given report should factor in regraded questions.
+     */
+    protected function should_show_regraded_questions() {
+
+        global $DB;
+
+        // If the user doesn't have the regrade capability, never show
+        // pending regrades.
+        if (!has_capability('mod/quiz:regrade', $this->context)) {
+            return false;
+        }
+
+        // If we already have a list of regraded questions,
+        // we know that regraded questions exist; return true.
+        if(!empty($this->regradedqs)) {
+            return true;
+        }
+
+        $qubaids = $this->get_qubaids_condition();
+        return $DB->count_records_select('quiz_overview_regrades',
+                'questionusageid ' . $qubaids->usage_id_in(), $qubaids->usage_id_in_params());
+
     }
 }

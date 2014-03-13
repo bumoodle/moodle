@@ -23,6 +23,7 @@ install_from_git git://github.com/mattgibson/moodle-block_ajax_marking.git block
 #install_from_git git://github.com/marxjohnson/moodle-block_messageteacher.git blocks/messageteacher # "Message My Teacher" block 
 install_from_git git://github.com/bumoodle/moodle-block_unanswered_discussions.git blocks/unanswered_discussions "-b $VERSION" # Unanswered Discussions block 
 install_from_git https://github.com/timhunt/moodle-report_customsql.git report/customsql #Custom SQL Reports 
+install_from_git https://github.com/jleyva/moodle-block_configurablereports.git blocks/configurable_reports
 install_from_git git://github.com/moodleou/moodle-block_viewasexample.git blocks/viewasexample # "View as Example" block 
 install_from_git git://github.com/bumoodle/moodle-block_massaction.git blocks/massaction # "Mass Actions" block
 

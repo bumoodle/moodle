@@ -1583,6 +1583,8 @@ function xmldb_main_upgrade($oldversion) {
     }
 
     if ($oldversion < 2013021100.01) {
+        // Make sure there are no bogus nulls in old MySQL tables.
+        $DB->set_field_select('user', 'password', '', "password IS NULL");
 
         // Changing precision of field password on table user to (255).
         $table = new xmldb_table('user');
@@ -3665,6 +3667,31 @@ function xmldb_main_upgrade($oldversion) {
         $filetypes = array('%.pub'=>'application/x-mspublisher');
         upgrade_mimetypes($filetypes);
         upgrade_main_savepoint(true, 2014051200.06);
+    }
+
+    if ($oldversion < 2014051201.03) {
+        $table = new xmldb_table('user_devices');
+        $oldindex = new xmldb_index('pushid-platform', XMLDB_KEY_UNIQUE, array('pushid', 'platform'));
+        if ($dbman->index_exists($table, $oldindex)) {
+            $key = new xmldb_key('pushid-platform', XMLDB_KEY_UNIQUE, array('pushid', 'platform'));
+            $dbman->drop_key($table, $key);
+        }
+        upgrade_main_savepoint(true, 2014051201.03);
+    }
+
+    if ($oldversion < 2014051201.06) {
+
+        // Define index behaviour (not unique) to be added to question_attempts.
+        $table = new xmldb_table('question_attempts');
+        $index = new xmldb_index('behaviour', XMLDB_INDEX_NOTUNIQUE, array('behaviour'));
+
+        // Conditionally launch add index behaviour.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2014051201.06);
     }
 
     return true;

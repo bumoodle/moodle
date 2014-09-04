@@ -47,6 +47,12 @@ abstract class backup_question_dbops extends backup_dbops {
                         FROM {question_categories}
                        WHERE contextid = ?", array($backupid, $contextid));
 
+        // XXX HACK ALERT! Do not commit me to upstream! XXX
+        // An issue with past Moodle backup has caused several courses to share the same question, in the same 
+        // course context, despite context policies prohibiting this. This short function prevents them from breaking backups.
+        self::hack_to_fix_categories_for_bu($backupid, $contextid);
+
+
         // Now, based in the annotated questions, annotate all the categories they
         // belong to (whole context question banks too)
         // First, get all the contexts we are going to save their question bank (no matter
@@ -58,6 +64,7 @@ abstract class backup_question_dbops extends backup_dbops {
                                             WHERE bi.backupid = ?
                                               AND bi.itemname = 'question'
                                               AND qc2.contextid != ?", array($backupid, $contextid));
+
         // And now, simply insert all the question categories (complete question bank)
         // for those contexts if we have found any
         if ($contexts) {
@@ -68,6 +75,63 @@ abstract class backup_question_dbops extends backup_dbops {
                             FROM {question_categories}
                            WHERE contextid $contextssql", $params);
         }
+    }
+
+    /** 
+     * An issue with past Moodle backup has caused several courses to share the same question, in the same 
+     * course context, despite context policies prohibiting this. This short (and horribly hackish) function
+     * allows us to still create successful backups.
+     *
+     * Once these backups are restored, this should no longer be necessary, and this function shuold be removed
+     * and never spoken of again.
+     */  
+    public static function hack_to_fix_categories_for_bu($backupid, $contextid) {
+
+        global $DB;
+
+        //Get a list of all /questions/ to be included in the backup.
+        $questions = $DB->get_records('backup_ids_temp', array('backupid' => $backupid, 'itemname' => 'question'), null, 'itemid');
+
+        //For each question to be saved...
+        foreach($questions as $question) {
+            self::hack_subquestion_categories($question->itemid, 'multianswer');
+            self::hack_subquestion_categories($question->itemid, 'multianswerbu');
+        }
+
+    }
+
+    /**
+     * Hack which converts all of the subquestions of a given multianswer-derivate to the given 
+     */
+    public static function hack_subquestion_categories($question_id, $qtype = 'multianswer') {
+        global $DB;
+
+        //Get the question ID.
+        $question_id = intval($question_id);
+
+        //Fetch the list of subquestions for the given question.
+        $result = $DB->get_record_sql('
+            SELECT multianswer.sequence as subquestions, question.category as category FROM
+                 {question} as question,
+                 {question_'.$qtype.'} as multianswer
+            WHERE 
+                question.id = ? AND
+                multianswer.question = question.id AND
+                question.qtype = ?', array($question_id, $qtype));
+
+        //If this isn't a multianswer, skip it.
+        if(empty($result->subquestions)) {
+            return;
+        } 
+
+        //Split the subquestions array into a list of subquestions.
+        $subquestions = explode(',', $result->subquestions);
+
+        //And force each subquestion to exist in the same category as its parent.  
+        foreach($subquestions as $subquestion_id) {
+            $DB->set_field('question', 'category', $result->category, array('id' => $subquestion_id));       
+        }
+
     }
 
     /**
